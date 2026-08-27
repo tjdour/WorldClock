@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using System.Text;
 // This class provides functionality to get the local time for a given clock location.
-namespace GlobalClock
+namespace WorldClock
 {
     internal class WorldClockService
     {
@@ -15,6 +15,25 @@ namespace GlobalClock
             DateTime localTime = TimeZoneInfo.ConvertTimeFromUtc(utcNow, timeZone);
 
             return localTime;
+        }
+
+        public TimeSpan GetTimeDifference(ClockLocation firstLocation,ClockLocation secondLocation)
+        {
+            DateTime utcNow = DateTime.UtcNow;
+
+            TimeZoneInfo firstTimeZone =
+                TimeZoneInfo.FindSystemTimeZoneById(firstLocation.TimeZoneId);
+
+            TimeZoneInfo secondTimeZone =
+                TimeZoneInfo.FindSystemTimeZoneById(secondLocation.TimeZoneId);
+
+            TimeSpan firstOffset =
+                firstTimeZone.GetUtcOffset(utcNow);
+
+            TimeSpan secondOffset =
+                secondTimeZone.GetUtcOffset(utcNow);
+
+            return secondOffset - firstOffset;
         }
     }
 }

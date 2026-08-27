@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using System.Text;
 // This class represents a clock location with a city name and a time zone identifier.
-namespace GlobalClock
+namespace WorldClock
 {
     internal class ClockLocation
     {

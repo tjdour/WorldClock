@@ -1,8 +1,9 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Text;
+using WorldClock.Models;
 
-namespace WorldClock
+namespace WorldClock.Services
 {
     internal class LocationManager
     {
@@ -55,11 +56,6 @@ namespace WorldClock
         }
 
 
-        //public void AddLocation(ClockLocation location)
-        //{
-        //    locations.Add(location);
-        //}
-
         public bool RemoveLocation(string city)
         {
             for (int i = 0; i < locations.Count; i++)
@@ -75,8 +71,6 @@ namespace WorldClock
 
             return false;
         }
-
-
 
 
         public List<ClockLocation> GetLocations()

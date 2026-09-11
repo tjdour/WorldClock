@@ -1,8 +1,9 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Text;
+using WorldClock.Models;
 // This class provides functionality to get the local time for a given clock location.
-namespace WorldClock
+namespace WorldClock.Services
 {
     internal class WorldClockService
     {

@@ -3,8 +3,9 @@
 // Clock locations are currently selected from a predefined in-memory list for the mini-project scope.
 // Users can view current times, add or remove locations, and compare times between two locations.
 
-using WorldClock;
 using Spectre.Console;
+using WorldClock.Models;
+using WorldClock.Services;
 
 LocationManager locationManager = new LocationManager();
 WorldClockService clockService = new WorldClockService();

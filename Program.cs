@@ -4,8 +4,7 @@
 // Users can view current times, add or remove locations, and compare times between two locations.
 
 using Spectre.Console;
-using WorldClock.Models;
-using WorldClock.Services;
+using WorldClock.Core;
 
 LocationManager locationManager = new LocationManager();
 WorldClockService clockService = new WorldClockService();

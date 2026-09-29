@@ -1,7 +1,5 @@
 <Solution>
-  <Project Path="../WorldClock.Core/WorldClock.Core.csproj" Id="acef0790-9377-462b-b47c-97a0cfea222d" />
-  <Project Path="../WorldClock.Maui/WorldClock.Maui.csproj" Id="f179cf4b-3a55-483d-9799-4b08e53817d2">
-    <Deploy Solution="Debug|*" />
-  </Project>
-  <Project Path="WorldClock.csproj" />
+  <Project Path="WorldClock.Core/WorldClock.Core.csproj" />
+  <Project Path="WorldClock.Maui/WorldClock.Maui.csproj" />
+  <Project Path="WorldClock/WorldClock.csproj" />
 </Solution>

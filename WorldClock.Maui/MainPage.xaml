@@ -1,0 +1,67 @@
+﻿<?xml version="1.0" encoding="utf-8" ?>
+<ContentPage
+    xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+    xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+    x:Class="WorldClock.Maui.MainPage"
+    Title="World Clock">
+
+    <Grid
+        Padding="30"
+        RowDefinitions="Auto,Auto,*,Auto"
+        RowSpacing="20">
+
+        <Label
+            Grid.Row="0"
+            Text="World Clock"
+            FontSize="32"
+            FontAttributes="Bold"
+            HorizontalOptions="Center" />
+
+        <HorizontalStackLayout
+            Grid.Row="1"
+            Spacing="10">
+
+            <Picker
+                x:Name="LocationPicker"
+                Title="Select a location"
+                WidthRequest="250" />
+
+            <Button
+                Text="Add Location"
+                Clicked="OnAddLocationClicked" />
+
+        </HorizontalStackLayout>
+
+        <CollectionView
+            Grid.Row="2"
+            x:Name="ClockCollectionView">
+
+            <CollectionView.ItemTemplate>
+                <DataTemplate>
+                    <Grid
+                        Padding="10"
+                        ColumnDefinitions="*,Auto">
+
+                        <Label
+                            Text="{Binding City}"
+                            FontSize="22" />
+
+                        <Label
+                            Grid.Column="1"
+                            Text="{Binding Time}"
+                            FontSize="22" />
+
+                    </Grid>
+                </DataTemplate>
+            </CollectionView.ItemTemplate>
+
+        </CollectionView>
+
+        <Button
+            Grid.Row="3"
+            Text="Refresh Times"
+            Clicked="OnRefreshClicked" />
+
+    </Grid>
+
+</ContentPage>

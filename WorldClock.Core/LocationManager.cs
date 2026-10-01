@@ -35,21 +35,17 @@ public class LocationManager
             .ToList();
     }
 
-    public bool AddLocation(ClockLocation location)
+    public void AddLocation(ClockLocation location)
     {
-        foreach (ClockLocation existingLocation in locations)
-        {
-            if (existingLocation.City.Equals(
+        bool alreadyExists = locations.Any(existingLocation =>
+            existingLocation.City.Equals(
                 location.City,
-                StringComparison.OrdinalIgnoreCase))
-            {
-                return false;
-            }
+                StringComparison.OrdinalIgnoreCase));
+
+        if (!alreadyExists)
+        {
+            locations.Add(location);
         }
-
-        locations.Add(location);
-
-        return true;
     }
 
 

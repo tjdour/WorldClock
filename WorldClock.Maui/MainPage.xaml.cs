@@ -54,6 +54,25 @@ public partial class MainPage : ContentPage
         DisplayTimes();
     }
 
+    private void OnRemoveLocationClicked(object? sender, EventArgs e)
+    {
+        if (sender is not Button button)
+        {
+            return;
+        }
+
+        string? city = button.CommandParameter?.ToString();
+
+        if (string.IsNullOrWhiteSpace(city))
+        {
+            return;
+        }
+
+        locationManager.RemoveLocation(city);
+
+        DisplayTimes();
+    }
+
 
 
 

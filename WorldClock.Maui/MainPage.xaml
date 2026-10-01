@@ -39,17 +39,24 @@
             <CollectionView.ItemTemplate>
                 <DataTemplate>
                     <Grid
-                        Padding="10"
-                        ColumnDefinitions="*,Auto">
+    Padding="10"
+    ColumnDefinitions="*,Auto,Auto"
+    ColumnSpacing="20">
 
                         <Label
-                            Text="{Binding City}"
-                            FontSize="22" />
+        Text="{Binding City}"
+        FontSize="22" />
 
                         <Label
-                            Grid.Column="1"
-                            Text="{Binding Time}"
-                            FontSize="22" />
+        Grid.Column="1"
+        Text="{Binding Time}"
+        FontSize="22" />
+
+                        <Button
+        Grid.Column="2"
+        Text="Remove"
+        CommandParameter="{Binding City}"
+        Clicked="OnRemoveLocationClicked" />
 
                     </Grid>
                 </DataTemplate>

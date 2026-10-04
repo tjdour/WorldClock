@@ -26,11 +26,7 @@ public partial class MainPage : ContentPage
         locationManager.AddLocation(
             availableLocations.First(location => location.City == "Tokyo"));
 
-        LocationPicker.ItemsSource =
-        availableLocations
-            .Select(location => location.City)
-            .ToList();
-
+        RefreshLocationPicker();
         DisplayTimes();
     }
 
@@ -52,6 +48,7 @@ public partial class MainPage : ContentPage
         locationManager.AddLocation(selectedLocation);
 
         DisplayTimes();
+        RefreshLocationPicker();
     }
 
     private void OnRemoveLocationClicked(object? sender, EventArgs e)
@@ -71,6 +68,7 @@ public partial class MainPage : ContentPage
         locationManager.RemoveLocation(city);
 
         DisplayTimes();
+        RefreshLocationPicker();
     }
 
 
@@ -103,5 +101,17 @@ public partial class MainPage : ContentPage
         }
 
         ClockCollectionView.ItemsSource = clockItems;
+    }
+
+    //locations not already selected will be displayed in the picker
+    private void RefreshLocationPicker()
+    {
+        LocationPicker.ItemsSource =
+            locationManager
+                .GetUnselectedLocations()
+                .Select(location => location.City)
+                .ToList();
+
+        LocationPicker.SelectedItem = null;
     }
 }

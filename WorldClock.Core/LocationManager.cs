@@ -1,4 +1,6 @@
 ﻿using System;
+using System.Collections.Generic;
+using System.Linq;
 
 namespace WorldClock.Core;
 
@@ -35,17 +37,20 @@ public class LocationManager
             .ToList();
     }
 
-    public void AddLocation(ClockLocation location)
+    public bool AddLocation(ClockLocation location)
     {
         bool alreadyExists = locations.Any(existingLocation =>
             existingLocation.City.Equals(
                 location.City,
                 StringComparison.OrdinalIgnoreCase));
 
-        if (!alreadyExists)
+        if (alreadyExists)
         {
-            locations.Add(location);
+            return false;
         }
+
+        locations.Add(location);
+        return true;
     }
 
 

@@ -64,10 +64,39 @@
 
         </CollectionView>
 
-        <Button
-            Grid.Row="3"
-            Text="Refresh Times"
-            Clicked="OnRefreshClicked" />
+        <VerticalStackLayout
+    Grid.Row="3"
+    Spacing="10">
+
+            <Label
+        Text="Compare Locations"
+        FontSize="22"
+        FontAttributes="Bold" />
+
+            <HorizontalStackLayout
+        Spacing="10">
+
+                <Picker
+            x:Name="CompareLocationOnePicker"
+            Title="First location"
+            WidthRequest="200" />
+
+                <Picker
+            x:Name="CompareLocationTwoPicker"
+            Title="Second location"
+            WidthRequest="200" />
+
+                <Button
+            Text="Compare"
+            Clicked="OnCompareClicked" />
+
+            </HorizontalStackLayout>
+
+            <Label
+        x:Name="CompareResultLabel"
+        FontSize="18" />
+
+        </VerticalStackLayout>
 
     </Grid>
 

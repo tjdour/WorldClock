@@ -8,23 +8,13 @@ public class LocationManager
 {
     private List<ClockLocation> locations = new List<ClockLocation>();
 
-    private List<ClockLocation> availableLocations = new List<ClockLocation>
+    private List<ClockLocation> availableLocations =
+    new List<ClockLocation>();
+
+    public void SetAvailableLocations(List<ClockLocation> locations)
     {
-        new ClockLocation("New York", "Eastern Standard Time"),
-        new ClockLocation("Los Angeles", "Pacific Standard Time"),
-        new ClockLocation("Chicago", "Central Standard Time"),
-        new ClockLocation("Denver", "Mountain Standard Time"),
-        new ClockLocation("London", "GMT Standard Time"),
-        new ClockLocation("Paris", "Romance Standard Time"),
-        new ClockLocation("Cairo", "Egypt Standard Time"),
-        new ClockLocation("Nairobi", "E. Africa Standard Time"),
-        new ClockLocation("Addis Ababa", "E. Africa Standard Time"),
-        new ClockLocation("Dubai", "Arabian Standard Time"),
-        new ClockLocation("New Delhi", "India Standard Time"),
-        new ClockLocation("Tokyo", "Tokyo Standard Time"),
-        new ClockLocation("Singapore", "Singapore Standard Time"),
-        new ClockLocation("Sydney", "AUS Eastern Standard Time")
-    };
+        availableLocations = locations;
+    }
 
     public List<ClockLocation> GetUnselectedLocations()
     {

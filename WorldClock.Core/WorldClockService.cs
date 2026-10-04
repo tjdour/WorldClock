@@ -15,6 +15,32 @@ public class WorldClockService
         return localTime;
     }
 
+    //converts the time from one location to another local to utc then utc to target location lcoal
+    public DateTime ConvertTime(ClockLocation sourceLocation, ClockLocation destinationLocation, DateTime sourceLocalTime)
+    {
+        TimeZoneInfo sourceTimeZone =
+            TimeZoneInfo.FindSystemTimeZoneById(
+                sourceLocation.TimeZoneId);
+
+        TimeZoneInfo destinationTimeZone =
+            TimeZoneInfo.FindSystemTimeZoneById(
+                destinationLocation.TimeZoneId);
+
+        DateTime unspecifiedSourceTime =
+            DateTime.SpecifyKind(
+                sourceLocalTime,
+                DateTimeKind.Unspecified);
+
+        DateTime utcTime =
+            TimeZoneInfo.ConvertTimeToUtc(
+                unspecifiedSourceTime,
+                sourceTimeZone);
+
+        return TimeZoneInfo.ConvertTimeFromUtc(
+            utcTime,
+            destinationTimeZone);
+    }
+
     public TimeSpan GetTimeDifference(ClockLocation firstLocation,ClockLocation secondLocation)
     {
         DateTime utcNow = DateTime.UtcNow;

@@ -7,8 +7,10 @@
 
     <Grid
         Padding="30"
-        RowDefinitions="Auto,Auto,*,Auto"
-        RowSpacing="20">
+        RowDefinitions="Auto,Auto,*"
+        RowSpacing="20"
+        WidthRequest="950"
+        HorizontalOptions="Center">
 
         <Label
             Grid.Row="0"
@@ -18,8 +20,9 @@
             HorizontalOptions="Center" />
 
         <HorizontalStackLayout
-            Grid.Row="1"
-            Spacing="10">
+    Grid.Row="1"
+    Spacing="10"
+    HorizontalOptions="Center">
 
             <Picker
                 x:Name="LocationPicker"
@@ -40,17 +43,19 @@
                 <DataTemplate>
                     <Grid
     Padding="10"
-    ColumnDefinitions="*,Auto,Auto"
-    ColumnSpacing="20">
+    ColumnDefinitions="2*,Auto,Auto"
+    ColumnSpacing="30">
 
                         <Label
         Text="{Binding City}"
-        FontSize="22" />
+        FontSize="22"
+        VerticalOptions="Center" />
 
                         <Label
         Grid.Column="1"
         Text="{Binding Time}"
-        FontSize="22" />
+        FontSize="22"
+        VerticalOptions="Center" />
 
                         <Button
         Grid.Column="2"
@@ -64,39 +69,7 @@
 
         </CollectionView>
 
-        <VerticalStackLayout
-    Grid.Row="3"
-    Spacing="10">
-
-            <Label
-        Text="Compare Locations"
-        FontSize="22"
-        FontAttributes="Bold" />
-
-            <HorizontalStackLayout
-        Spacing="10">
-
-                <Picker
-            x:Name="CompareLocationOnePicker"
-            Title="First location"
-            WidthRequest="200" />
-
-                <Picker
-            x:Name="CompareLocationTwoPicker"
-            Title="Second location"
-            WidthRequest="200" />
-
-                <Button
-            Text="Compare"
-            Clicked="OnCompareClicked" />
-
-            </HorizontalStackLayout>
-
-            <Label
-        x:Name="CompareResultLabel"
-        FontSize="18" />
-
-        </VerticalStackLayout>
+        
 
     </Grid>
 

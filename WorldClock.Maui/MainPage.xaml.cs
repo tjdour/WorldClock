@@ -1,4 +1,7 @@
 ﻿using WorldClock.Core;
+using WorldClock.Maui.Data;
+using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.DependencyInjection;
 
 namespace WorldClock.Maui;
 
@@ -9,6 +12,7 @@ public partial class MainPage : ContentPage
 
     //clock refreshes every second, so we need to keep track of the items to update them instead of creating new ones each time
     private List<ClockDisplayItem> clockItems = new List<ClockDisplayItem>();
+    private bool locationsLoaded = false;
 
     public MainPage()
     {
@@ -17,21 +21,9 @@ public partial class MainPage : ContentPage
         locationManager = new LocationManager();
         clockService = new WorldClockService();
 
-        List<ClockLocation> availableLocations =
-            locationManager.GetAvailableLocations();
-
-        locationManager.AddLocation(
-            availableLocations.First(location => location.City == "New York"));
-
-        locationManager.AddLocation(
-            availableLocations.First(location => location.City == "London"));
-
-        locationManager.AddLocation(
-            availableLocations.First(location => location.City == "Tokyo"));
-
-        RefreshLocationPicker();
-        DisplayTimes();
-        RefreshComparePickers();
+        //RefreshLocationPicker();
+        //DisplayTimes();
+        
         StartClockTimer();
     }
 
@@ -62,10 +54,11 @@ public partial class MainPage : ContentPage
                 .First(location => location.City == selectedCity);
 
         locationManager.AddLocation(selectedLocation);
+        SaveLocationToDatabase(selectedLocation);
 
         DisplayTimes();
         RefreshLocationPicker();
-        RefreshComparePickers();
+        
     }
 
     private void OnRemoveLocationClicked(object? sender, EventArgs e)
@@ -83,10 +76,11 @@ public partial class MainPage : ContentPage
         }
 
         locationManager.RemoveLocation(city);
+        RemoveLocationFromDatabase(city);
 
         DisplayTimes();
         RefreshLocationPicker();
-        RefreshComparePickers();
+        
     }
 
 
@@ -148,68 +142,155 @@ public partial class MainPage : ContentPage
         LocationPicker.SelectedItem = null;
     }
 
-    //time comparisonfeature
-    private void OnCompareClicked(object? sender, EventArgs e)
+  
+    
+
+
+    // Database operations
+    private void SaveLocationToDatabase(ClockLocation location)
     {
-        if (CompareLocationOnePicker.SelectedItem == null ||
-            CompareLocationTwoPicker.SelectedItem == null)
+        using IServiceScope scope =
+            Handler.MauiContext!.Services.CreateScope();
+
+        WorldClockDbContext dbContext =
+            scope.ServiceProvider
+                .GetRequiredService<WorldClockDbContext>();
+
+        bool alreadySaved =
+            dbContext.Locations.Any(saved =>
+                saved.City == location.City);
+
+        if (!alreadySaved)
         {
-            CompareResultLabel.Text =
-                "Select two locations to compare.";
-            return;
-        }
+            dbContext.Locations.Add(
+                new ClockLocation(
+                    location.City,
+                    location.TimeZoneId));
 
-        string firstCity =
-            CompareLocationOnePicker.SelectedItem.ToString()!;
-
-        string secondCity =
-            CompareLocationTwoPicker.SelectedItem.ToString()!;
-
-        ClockLocation firstLocation =
-            locationManager
-                .GetLocations()
-                .First(location => location.City == firstCity);
-
-        ClockLocation secondLocation =
-            locationManager
-                .GetLocations()
-                .First(location => location.City == secondCity);
-
-        DateTime firstTime =
-            clockService.GetLocalTime(firstLocation);
-
-        DateTime secondTime =
-            clockService.GetLocalTime(secondLocation);
-
-        double difference =
-            (secondTime - firstTime).TotalHours;
-
-        if (difference == 0)
-        {
-            CompareResultLabel.Text =
-                $"{firstCity} and {secondCity} are at the same local time.";
-        }
-        else if (difference > 0)
-        {
-            CompareResultLabel.Text =
-                $"{secondCity} is {difference:0.#} hours ahead of {firstCity}.";
-        }
-        else
-        {
-            CompareResultLabel.Text =
-                $"{secondCity} is {Math.Abs(difference):0.#} hours behind {firstCity}.";
+            dbContext.SaveChanges();
         }
     }
 
-    private void RefreshComparePickers()
+
+    private void RemoveLocationFromDatabase(string city)
     {
-        List<string> selectedCities =
-            locationManager
-                .GetLocations()
-                .Select(location => location.City)
+        using IServiceScope scope =
+            Handler.MauiContext!.Services.CreateScope();
+
+        WorldClockDbContext dbContext =
+            scope.ServiceProvider
+                .GetRequiredService<WorldClockDbContext>();
+
+        ClockLocation? savedLocation =
+            dbContext.Locations
+                .FirstOrDefault(location =>
+                    location.City == city);
+
+        if (savedLocation != null)
+        {
+            dbContext.Locations.Remove(savedLocation);
+            dbContext.SaveChanges();
+        }
+    }
+
+    //load locations from database on startup
+    private void LoadLocationsFromDatabase()
+    {
+        using IServiceScope scope =
+            Handler.MauiContext!.Services.CreateScope();
+
+        WorldClockDbContext dbContext =
+            scope.ServiceProvider
+                .GetRequiredService<WorldClockDbContext>();
+
+        List<ClockLocation> savedLocations =
+            dbContext.Locations.ToList();
+
+        if (savedLocations.Count == 0)
+        {
+            List<ClockLocation> availableLocations =
+                locationManager.GetAvailableLocations();
+
+            ClockLocation newYork =
+                availableLocations.First(location =>
+                    location.City == "New York City");
+
+            ClockLocation london =
+                availableLocations.First(location =>
+                    location.City == "London");
+
+            ClockLocation tokyo =
+                availableLocations.First(location =>
+                    location.City == "Tokyo");
+
+            locationManager.AddLocation(newYork);
+            locationManager.AddLocation(london);
+            locationManager.AddLocation(tokyo);
+
+            SaveLocationToDatabase(newYork);
+            SaveLocationToDatabase(london);
+            SaveLocationToDatabase(tokyo);
+        }
+        else
+        {
+            foreach (ClockLocation location in savedLocations)
+            {
+                locationManager.AddLocation(location);
+            }
+        }
+
+        DisplayTimes();
+        RefreshLocationPicker();
+        
+    }
+
+    protected override async void OnHandlerChanged()
+    {
+        base.OnHandlerChanged();
+
+        if (Handler == null || locationsLoaded)
+        {
+            return;
+        }
+
+        await LoadCityCatalogAsync();
+        LoadLocationsFromDatabase();
+
+        locationsLoaded = true;
+    }
+
+    //City list from json file
+    private async Task LoadCityCatalogAsync()
+    {
+        var cities = await CityDataLoader.LoadCitiesAsync();
+
+        HashSet<string> duplicateNames =
+            cities
+                .GroupBy(city => city.Name, StringComparer.OrdinalIgnoreCase)
+                .Where(group => group.Count() > 1)
+                .Select(group => group.Key)
+                .ToHashSet(StringComparer.OrdinalIgnoreCase);
+
+        List<ClockLocation> locations =
+            cities
+                .Select(city =>
+                {
+                    string displayName = city.Name;
+
+                    if (duplicateNames.Contains(city.Name))
+                    {
+                        displayName = string.IsNullOrWhiteSpace(city.Region)
+                            ? $"{city.Name} ({city.Country})"
+                            : $"{city.Name} ({city.Region}, {city.Country})";
+                    }
+
+                    return new ClockLocation(
+                        displayName,
+                        city.TimeZone);
+                })
+                .OrderBy(location => location.City)
                 .ToList();
 
-        CompareLocationOnePicker.ItemsSource = selectedCities;
-        CompareLocationTwoPicker.ItemsSource = selectedCities;
+        locationManager.SetAvailableLocations(locations);
     }
 }

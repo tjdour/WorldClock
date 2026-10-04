@@ -1,0 +1,89 @@
+<?xml version="1.0" encoding="utf-8" ?>
+
+<ContentPage
+    xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+    xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+    x:Class="WorldClock.Maui.ComparePage"
+    Title="Compare">
+
+    <Grid Padding="30">
+
+        <VerticalStackLayout
+            HorizontalOptions="Center"
+            VerticalOptions="Center"
+            WidthRequest="850"
+            Spacing="30">
+
+            <Label
+                Text="Compare Time"
+                FontSize="32"
+                FontAttributes="Bold"
+                HorizontalOptions="Center" />
+
+            <Grid
+                ColumnDefinitions="*,*"
+                ColumnSpacing="40">
+
+                <!-- LEFT CITY -->
+                <VerticalStackLayout
+                    Grid.Column="0"
+                    Spacing="12">
+
+                    <Picker
+                        x:Name="SourceLocationPicker"
+                        Title="Choose city" />
+
+                    <Label
+                        x:Name="SourceTimeLabel"
+                        FontSize="30"
+                        FontAttributes="Bold"
+                        HorizontalOptions="Center" />
+
+                    <Label
+                        x:Name="SourceDateLabel"
+                        FontSize="18"
+                        HorizontalOptions="Center" />
+
+                </VerticalStackLayout>
+
+                <!-- RIGHT CITY -->
+                <VerticalStackLayout
+                    Grid.Column="1"
+                    Spacing="12">
+
+                    <Picker
+                        x:Name="DestinationLocationPicker"
+                        Title="Choose city" />
+
+                    <Label
+                        x:Name="DestinationTimeLabel"
+                        FontSize="30"
+                        FontAttributes="Bold"
+                        HorizontalOptions="Center" />
+
+                    <Label
+                        x:Name="DestinationDateLabel"
+                        FontSize="18"
+                        HorizontalOptions="Center" />
+
+                </VerticalStackLayout>
+
+            </Grid>
+
+            <Button
+                Text="Compare"
+                Clicked="OnConvertClicked"
+                HorizontalOptions="Center"
+                WidthRequest="200" />
+
+            <Label
+                x:Name="DifferenceResultLabel"
+                FontSize="20"
+                FontAttributes="Bold"
+                HorizontalOptions="Center" />
+
+        </VerticalStackLayout>
+
+    </Grid>
+
+</ContentPage>

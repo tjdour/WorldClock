@@ -1,4 +1,6 @@
 ﻿using Microsoft.Extensions.Logging;
+using Microsoft.EntityFrameworkCore;
+using WorldClock.Maui.Data;
 
 namespace WorldClock.Maui
 {
@@ -15,11 +17,27 @@ namespace WorldClock.Maui
                     fonts.AddFont("OpenSans-Semibold.ttf", "OpenSansSemibold");
                 });
 
+            //ef core sqlite database path
+            string databasePath = Path.Combine(FileSystem.AppDataDirectory,"worldclock.db");
+
+            builder.Services.AddDbContext<WorldClockDbContext>(options =>
+                options.UseSqlite($"Data Source={databasePath}"));
+
 #if DEBUG
-    		builder.Logging.AddDebug();
+            builder.Logging.AddDebug();
 #endif
 
-            return builder.Build();
+            MauiApp app = builder.Build();
+
+            using (IServiceScope scope = app.Services.CreateScope())
+            {
+                WorldClockDbContext dbContext =
+                    scope.ServiceProvider.GetRequiredService<WorldClockDbContext>();
+
+                dbContext.Database.EnsureCreated();
+            }
+
+            return app;
         }
     }
 }

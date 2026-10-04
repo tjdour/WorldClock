@@ -6,9 +6,18 @@
     xmlns:local="clr-namespace:WorldClock.Maui"
     Title="WorldClock.Maui">
 
-    <ShellContent
-        Title="Home"
+    <TabBar>
+
+        <ShellContent
+        Title="Clocks"
         ContentTemplate="{DataTemplate local:MainPage}"
         Route="MainPage" />
+
+        <ShellContent
+        Title="Compare"
+        ContentTemplate="{DataTemplate local:ComparePage}"
+        Route="ComparePage" />
+
+    </TabBar>
 
 </Shell>

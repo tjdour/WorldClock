@@ -12,44 +12,50 @@
             HorizontalOptions="Center"
             VerticalOptions="Center"
             WidthRequest="850"
-            Spacing="30">
+            Spacing="25">
 
             <Label
-                Text="Compare Time"
+                Text="Time Zone Converter"
                 FontSize="32"
                 FontAttributes="Bold"
                 HorizontalOptions="Center" />
 
             <Grid
                 ColumnDefinitions="*,*"
-                ColumnSpacing="40">
+                ColumnSpacing="50">
 
-                <!-- LEFT CITY -->
+                <!-- FROM -->
                 <VerticalStackLayout
                     Grid.Column="0"
                     Spacing="12">
+
+                    <Label
+                        Text="FROM"
+                        FontAttributes="Bold"
+                        HorizontalOptions="Center" />
 
                     <Picker
                         x:Name="SourceLocationPicker"
                         Title="Choose city" />
 
-                    <Label
-                        x:Name="SourceTimeLabel"
-                        FontSize="30"
-                        FontAttributes="Bold"
-                        HorizontalOptions="Center" />
+                    <DatePicker
+                        x:Name="SourceDatePicker" />
 
-                    <Label
-                        x:Name="SourceDateLabel"
-                        FontSize="18"
-                        HorizontalOptions="Center" />
+                    <TimePicker
+                        x:Name="SourceTimePicker"
+                        Format="h:mm tt" />
 
                 </VerticalStackLayout>
 
-                <!-- RIGHT CITY -->
+                <!-- TO -->
                 <VerticalStackLayout
                     Grid.Column="1"
                     Spacing="12">
+
+                    <Label
+                        Text="TO"
+                        FontAttributes="Bold"
+                        HorizontalOptions="Center" />
 
                     <Picker
                         x:Name="DestinationLocationPicker"
@@ -57,12 +63,14 @@
 
                     <Label
                         x:Name="DestinationTimeLabel"
+                        Text="--:--"
                         FontSize="30"
                         FontAttributes="Bold"
                         HorizontalOptions="Center" />
 
                     <Label
                         x:Name="DestinationDateLabel"
+                        Text="Select a date and time"
                         FontSize="18"
                         HorizontalOptions="Center" />
 
@@ -70,11 +78,26 @@
 
             </Grid>
 
-            <Button
-                Text="Compare"
-                Clicked="OnConvertClicked"
-                HorizontalOptions="Center"
-                WidthRequest="200" />
+            <HorizontalStackLayout
+    HorizontalOptions="Center"
+    Spacing="15">
+
+                <Button
+        Text="Now"
+        Clicked="OnNowClicked"
+        WidthRequest="120" />
+
+                <Button
+        Text="⇄"
+        Clicked="OnSwapClicked"
+        WidthRequest="80" />
+
+                <Button
+        Text="Convert"
+        Clicked="OnConvertClicked"
+        WidthRequest="160" />
+
+            </HorizontalStackLayout>
 
             <Label
                 x:Name="DifferenceResultLabel"

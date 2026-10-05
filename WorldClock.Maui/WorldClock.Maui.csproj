@@ -28,7 +28,7 @@
 		<MauiXamlInflator>SourceGen</MauiXamlInflator>
 
 		<!-- Display name -->
-		<ApplicationTitle>WorldClock.Maui</ApplicationTitle>
+		<ApplicationTitle>World Clock</ApplicationTitle>
 
 		<!-- App Identifier -->
 		<ApplicationId>com.companyname.worldclock.maui</ApplicationId>

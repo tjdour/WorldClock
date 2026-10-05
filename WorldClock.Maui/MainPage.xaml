@@ -7,7 +7,7 @@
 
     <Grid
         Padding="30"
-        RowDefinitions="Auto,Auto,*"
+        RowDefinitions="Auto,*,Auto"
         RowSpacing="20"
         WidthRequest="950"
         HorizontalOptions="Center">
@@ -19,8 +19,9 @@
             FontAttributes="Bold"
             HorizontalOptions="Center" />
 
-        <HorizontalStackLayout
-    Grid.Row="1"
+    
+    <HorizontalStackLayout
+    Grid.Row="2"
     Spacing="10"
     HorizontalOptions="Center">
 
@@ -36,7 +37,7 @@
         </HorizontalStackLayout>
 
         <CollectionView
-            Grid.Row="2"
+            Grid.Row="1"
             x:Name="ClockCollectionView">
 
             <CollectionView.ItemTemplate>

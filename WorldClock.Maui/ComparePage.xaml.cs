@@ -16,6 +16,11 @@ public partial class ComparePage : ContentPage
         InitializeComponent();
 
         clockService = new WorldClockService();
+
+        DateTime now = DateTime.Now;
+
+        SourceDatePicker.Date = now.Date;
+        SourceTimePicker.Time = now.TimeOfDay;
     }
 
     protected override async void OnAppearing()
@@ -53,6 +58,14 @@ public partial class ComparePage : ContentPage
         DestinationLocationPicker.ItemsSource = cityNames;
     }
 
+    private void OnNowClicked(object? sender, EventArgs e)
+    {
+        DateTime now = DateTime.Now;
+
+        SourceDatePicker.Date = now.Date;
+        SourceTimePicker.Time = now.TimeOfDay;
+    }
+
     private void OnConvertClicked(object? sender, EventArgs e)
     {
         if (SourceLocationPicker.SelectedItem == null ||
@@ -60,6 +73,20 @@ public partial class ComparePage : ContentPage
         {
             DifferenceResultLabel.Text =
                 "Select two cities.";
+            return;
+        }
+
+        DateTime? selectedDate =
+            SourceDatePicker.Date;
+
+        TimeSpan? selectedTime =
+            SourceTimePicker.Time;
+
+        if (selectedDate == null ||
+            selectedTime == null)
+        {
+            DifferenceResultLabel.Text =
+                "Select a date and time.";
             return;
         }
 
@@ -77,26 +104,26 @@ public partial class ComparePage : ContentPage
             compareLocations.First(location =>
                 location.City == destinationCity);
 
-        DateTime sourceTime =
-            clockService.GetLocalTime(sourceLocation);
+        DateTime sourceDateTime =
+            selectedDate.Value.Date +
+            selectedTime.Value;
 
-        DateTime destinationTime =
-            clockService.GetLocalTime(destinationLocation);
-
-        SourceTimeLabel.Text =
-            sourceTime.ToString("h:mm tt");
-
-        SourceDateLabel.Text =
-            sourceTime.ToString("dddd, MMMM d, yyyy");
+        DateTime destinationDateTime =
+            clockService.ConvertTime(
+                sourceLocation,
+                destinationLocation,
+                sourceDateTime);
 
         DestinationTimeLabel.Text =
-            destinationTime.ToString("h:mm tt");
+            destinationDateTime.ToString("h:mm tt");
 
         DestinationDateLabel.Text =
-            destinationTime.ToString("dddd, MMMM d, yyyy");
+            destinationDateTime.ToString(
+                "dddd, MMMM d, yyyy");
 
         double difference =
-            (destinationTime - sourceTime).TotalHours;
+            (destinationDateTime - sourceDateTime)
+            .TotalHours;
 
         if (Math.Abs(difference) < 0.1)
         {
@@ -118,4 +145,25 @@ public partial class ComparePage : ContentPage
                 $"{sourceLocation.City}";
         }
     }
+
+    private void OnSwapClicked(object? sender, EventArgs e)
+    {
+        object? sourceSelection =
+            SourceLocationPicker.SelectedItem;
+
+        object? destinationSelection =
+            DestinationLocationPicker.SelectedItem;
+
+        SourceLocationPicker.SelectedItem =
+            destinationSelection;
+
+        DestinationLocationPicker.SelectedItem =
+            sourceSelection;
+
+        DifferenceResultLabel.Text = string.Empty;
+        DestinationTimeLabel.Text = "--:--";
+        DestinationDateLabel.Text =
+            "Select a date and time";
+    }
+
 }

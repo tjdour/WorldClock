@@ -1,7 +1,8 @@
-﻿using WorldClock.Core;
-using WorldClock.Maui.Data;
-using Microsoft.EntityFrameworkCore;
+﻿using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
+using WorldClock.Core;
+using WorldClock.Maui.Data;
+using WorldClock.Maui.Models;
 
 namespace WorldClock.Maui;
 
@@ -13,6 +14,12 @@ public partial class MainPage : ContentPage
     //clock refreshes every second, so we need to keep track of the items to update them instead of creating new ones each time
     private List<ClockDisplayItem> clockItems = new List<ClockDisplayItem>();
     private bool locationsLoaded = false;
+
+    private Dictionary<string, CityData> cityDataLookup =
+    new Dictionary<string, CityData>();
+
+    private Dictionary<string, ClockLocation> locationPickerLookup =
+        new Dictionary<string, ClockLocation>();
 
     public MainPage()
     {
@@ -45,20 +52,21 @@ public partial class MainPage : ContentPage
             return;
         }
 
-        string selectedCity =
+        string selectedText =
             LocationPicker.SelectedItem.ToString()!;
 
-        ClockLocation selectedLocation =
-            locationManager
-                .GetAvailableLocations()
-                .First(location => location.City == selectedCity);
+        if (!locationPickerLookup.TryGetValue(
+            selectedText,
+            out ClockLocation? selectedLocation))
+        {
+            return;
+        }
 
         locationManager.AddLocation(selectedLocation);
         SaveLocationToDatabase(selectedLocation);
 
         DisplayTimes();
         RefreshLocationPicker();
-        
     }
 
     private void OnRemoveLocationClicked(object? sender, EventArgs e)
@@ -133,17 +141,122 @@ public partial class MainPage : ContentPage
     //locations not already selected will be displayed in the picker
     private void RefreshLocationPicker()
     {
+        locationPickerLookup.Clear();
+
+        foreach (ClockLocation location
+            in locationManager.GetUnselectedLocations())
+        {
+            string pickerText =
+                GetLocationPickerText(location);
+
+            locationPickerLookup[pickerText] =
+                location;
+        }
+
         LocationPicker.ItemsSource =
-            locationManager
-                .GetUnselectedLocations()
-                .Select(location => location.City)
+            locationPickerLookup.Keys
+                .OrderBy(text => text)
                 .ToList();
 
         LocationPicker.SelectedItem = null;
     }
 
-  
-    
+    private string GetLocationPickerText(
+    ClockLocation location)
+    {
+        if (!cityDataLookup.TryGetValue(
+            location.City,
+            out CityData? city))
+        {
+            return location.City;
+        }
+
+        if (city.Country == "US")
+        {
+            string state =
+                GetUsStateAbbreviation(city.Region);
+
+            if (!string.IsNullOrWhiteSpace(state))
+            {
+                return $"{city.Name}, {state}, USA";
+            }
+
+            return $"{city.Name}, USA";
+        }
+
+        if (!string.IsNullOrWhiteSpace(city.Region) &&
+            cityDataLookup.Values.Count(other =>
+                other.Name.Equals(
+                    city.Name,
+                    StringComparison.OrdinalIgnoreCase)) > 1)
+        {
+            return $"{city.Name}, {city.Region}, {city.Country}";
+        }
+
+        return $"{city.Name}, {city.Country}";
+    }
+
+    private string GetUsStateAbbreviation(string? state)
+    {
+        return state switch
+        {
+            "Alabama" => "AL",
+            "Alaska" => "AK",
+            "Arizona" => "AZ",
+            "Arkansas" => "AR",
+            "California" => "CA",
+            "Colorado" => "CO",
+            "Connecticut" => "CT",
+            "Delaware" => "DE",
+            "Florida" => "FL",
+            "Georgia" => "GA",
+            "Hawaii" => "HI",
+            "Idaho" => "ID",
+            "Illinois" => "IL",
+            "Indiana" => "IN",
+            "Iowa" => "IA",
+            "Kansas" => "KS",
+            "Kentucky" => "KY",
+            "Louisiana" => "LA",
+            "Maine" => "ME",
+            "Maryland" => "MD",
+            "Massachusetts" => "MA",
+            "Michigan" => "MI",
+            "Minnesota" => "MN",
+            "Mississippi" => "MS",
+            "Missouri" => "MO",
+            "Montana" => "MT",
+            "Nebraska" => "NE",
+            "Nevada" => "NV",
+            "New Hampshire" => "NH",
+            "New Jersey" => "NJ",
+            "New Mexico" => "NM",
+            "New York" => "NY",
+            "North Carolina" => "NC",
+            "North Dakota" => "ND",
+            "Ohio" => "OH",
+            "Oklahoma" => "OK",
+            "Oregon" => "OR",
+            "Pennsylvania" => "PA",
+            "Rhode Island" => "RI",
+            "South Carolina" => "SC",
+            "South Dakota" => "SD",
+            "Tennessee" => "TN",
+            "Texas" => "TX",
+            "Utah" => "UT",
+            "Vermont" => "VT",
+            "Virginia" => "VA",
+            "Washington" => "WA",
+            "West Virginia" => "WV",
+            "Wisconsin" => "WI",
+            "Wyoming" => "WY",
+            "District of Columbia" => "DC",
+            _ => state ?? string.Empty
+        };
+    }
+
+
+
 
 
     // Database operations
@@ -262,7 +375,8 @@ public partial class MainPage : ContentPage
     //City list from json file
     private async Task LoadCityCatalogAsync()
     {
-        var cities = await CityDataLoader.LoadCitiesAsync();
+        List<CityData> cities =
+            await CityDataLoader.LoadCitiesAsync();
 
         HashSet<string> duplicateNames =
             cities
@@ -272,24 +386,34 @@ public partial class MainPage : ContentPage
                 .ToHashSet(StringComparer.OrdinalIgnoreCase);
 
         List<ClockLocation> locations =
-            cities
-                .Select(city =>
-                {
-                    string displayName = city.Name;
+            new List<ClockLocation>();
 
-                    if (duplicateNames.Contains(city.Name))
-                    {
-                        displayName = string.IsNullOrWhiteSpace(city.Region)
-                            ? $"{city.Name} ({city.Country})"
-                            : $"{city.Name} ({city.Region}, {city.Country})";
-                    }
+        cityDataLookup.Clear();
 
-                    return new ClockLocation(
-                        displayName,
-                        city.TimeZone);
-                })
-                .OrderBy(location => location.City)
-                .ToList();
+        foreach (CityData city in cities)
+        {
+            string locationName = city.Name;
+
+            if (duplicateNames.Contains(city.Name))
+            {
+                locationName = string.IsNullOrWhiteSpace(city.Region)
+                    ? $"{city.Name} ({city.Country})"
+                    : $"{city.Name} ({city.Region}, {city.Country})";
+            }
+
+            ClockLocation location =
+                new ClockLocation(
+                    locationName,
+                    city.TimeZone);
+
+            locations.Add(location);
+
+            cityDataLookup[locationName] = city;
+        }
+
+        locations = locations
+            .OrderBy(location => location.City)
+            .ToList();
 
         locationManager.SetAvailableLocations(locations);
     }

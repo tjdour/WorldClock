@@ -8,9 +8,14 @@ public sealed class AiAssistantService(
 {
     private const int MaximumPromptLength = 1000;
     private const int MaximumToolIterations = 4;
+    private readonly ConversationHistory conversationHistory = new();
 
     private static readonly string SystemPrompt = """
-        You are the World Clock assistant. Use only the supplied time-zone tools for current times, conversions, and time differences. Never calculate or guess a time, offset, or time-zone rule yourself. Use only cities in the packaged city catalog. If a tool reports an unknown or ambiguous city, ask the user to choose from the reported options. For a date without a year, use its next upcoming occurrence and state the year. For a conversion, use an ISO local date/time in the source city; if the tool reports an invalid or repeated daylight-saving time, ask the user to choose a valid time or occurrence. Do not claim a tool succeeded when it returned an error. Answer concisely and include the relevant city names and date.
+        You are a friendly, conversational World Clock assistant. Understand ordinary language, remember the conversation, and resolve follow-up questions using earlier messages. The current date and UTC time are supplied with each request; use them to interpret words such as today, tomorrow, and next Tuesday.
+
+        Automatically choose and call the supplied time-zone tools for current local times, conversions, and time differences. Interpret natural-language dates and times, then provide tool arguments in the required format yourself. Never ask the user to provide ISO 8601 timestamps or choose a tool/function. Ask a concise follow-up only when an essential detail is genuinely missing or ambiguous, such as which city or which occurrence of a repeated daylight-saving time.
+
+        Use only cities in the packaged city catalog and only tool results for times, conversions, and offsets. Never calculate, invent, or guess a time, UTC offset, or time-zone rule yourself. If a tool reports an unknown or ambiguous city, ask the user to choose from its options. For a date without a year, use its next upcoming occurrence and state the year. Preserve daylight-saving validation: if a local time does not exist or occurs twice, explain the issue naturally and ask for a different time or which occurrence is meant. Do not claim a tool succeeded when it returned an error. Answer naturally and concisely, including relevant city names and dates.
         """;
 
     private readonly AIFunction[] tools =
@@ -22,7 +27,7 @@ public sealed class AiAssistantService(
         AIFunctionFactory.Create(
             timeZoneTools.ConvertTime,
             name: "convert_time",
-            description: "Convert an ISO local date/time from a source city to a destination city."),
+            description: "Convert a requested local date and time in a source city to the destination city's local time. Interpret ordinary date/time wording and supply the required date-time argument format yourself."),
         AIFunctionFactory.Create(
             timeZoneTools.GetTimeDifference,
             name: "get_time_difference",
@@ -51,19 +56,20 @@ public sealed class AiAssistantService(
                 configure: options => options.MaximumIterationsPerRequest = MaximumToolIterations)
             .Build();
 
-        List<ChatMessage> messages =
-        [
-            new(ChatRole.System, SystemPrompt),
-            new(ChatRole.User, prompt)
-        ];
+        DateTimeOffset now = DateTimeOffset.UtcNow;
+        string systemContext = $"{SystemPrompt}\n\nCurrent date and UTC time: {now.ToString("yyyy-MM-dd HH:mm:ss 'UTC'", System.Globalization.CultureInfo.InvariantCulture)}.";
+        List<ChatMessage> messages = conversationHistory.CreateRequestMessages(systemContext, prompt);
 
         ChatResponse response = await chatClient.GetResponseAsync(
             messages,
             new ChatOptions { Tools = tools },
             cancellationToken);
 
-        return string.IsNullOrWhiteSpace(response.Text)
+        string answer = string.IsNullOrWhiteSpace(response.Text)
             ? "I couldn't complete that request. Try rephrasing it or naming the cities explicitly."
             : response.Text.Trim();
+
+        conversationHistory.AddTurn(prompt, answer);
+        return answer;
     }
 }

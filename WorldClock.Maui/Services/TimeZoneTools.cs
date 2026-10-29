@@ -46,7 +46,7 @@ public sealed class TimeZoneTools
         }
     }
 
-    [Description("Convert an ISO local date/time in a source city to the destination city's local time. Use yyyy-MM-ddTHH:mm or yyyy-MM-ddTHH:mm:ss. If the time is invalid or repeated because of daylight saving time, return the clarification request to the user.")]
+    [Description("Convert a local date and time in a source city to the destination city's local time. Interpret natural-language requests and provide the date-time argument in the required format. If the time is invalid or repeated because of daylight saving time, return the clarification request to the user.")]
     public async Task<string> ConvertTime(
         string sourceCity,
         string destinationCity,
@@ -72,7 +72,7 @@ public sealed class TimeZoneTools
                 DateTimeStyles.None,
                 out DateTime sourceLocalTime))
         {
-            return "INVALID_DATE_TIME: Ask the user for a specific date and time, including the year, then retry using ISO format.";
+            return "INVALID_DATE_TIME: Ask the user for a specific date and time, including the year, then retry.";
         }
 
         try

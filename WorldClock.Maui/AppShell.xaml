@@ -18,6 +18,10 @@
         ContentTemplate="{DataTemplate local:ComparePage}"
         Route="ComparePage" />
 
+        <ShellContent
+        Title="AI Assistant"
+        Route="AssistantPage" />
+
     </TabBar>
 
 </Shell>

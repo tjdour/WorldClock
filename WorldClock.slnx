@@ -1,5 +1,6 @@
 <Solution>
   <Project Path="WorldClock.Core/WorldClock.Core.csproj" />
   <Project Path="WorldClock.Maui/WorldClock.Maui.csproj" />
+  <Project Path="WorldClock.Tests/WorldClock.Tests.csproj" />
   <Project Path="WorldClock/WorldClock.csproj" />
 </Solution>

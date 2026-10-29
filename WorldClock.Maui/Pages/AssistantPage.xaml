@@ -1,0 +1,65 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<ContentPage
+    xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+    xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+    x:Class="WorldClock.Maui.AssistantPage"
+    Title="AI Assistant">
+
+    <Grid
+        Padding="24"
+        RowDefinitions="Auto,*,Auto"
+        RowSpacing="16"
+        MaximumWidthRequest="900"
+        HorizontalOptions="Center">
+
+        <VerticalStackLayout Grid.Row="0" Spacing="4">
+            <Label
+                Text="World Clock Assistant"
+                FontSize="30"
+                FontAttributes="Bold"
+                HorizontalOptions="Center" />
+            <Label
+                Text="Ask about current times, time-zone differences, or a date-specific conversion."
+                HorizontalTextAlignment="Center" />
+        </VerticalStackLayout>
+
+        <ScrollView
+            x:Name="ResponseScrollView"
+            Grid.Row="1">
+            <VerticalStackLayout Spacing="12">
+                <Label
+                    Text="Try: What time is it in Tokyo right now?"
+                    FontAttributes="Italic" />
+                <Label
+                    x:Name="AnswerLabel"
+                    IsVisible="False"
+                    FontSize="18"
+                    LineBreakMode="WordWrap" />
+            </VerticalStackLayout>
+        </ScrollView>
+
+        <VerticalStackLayout Grid.Row="2" Spacing="10">
+            <Editor
+                x:Name="PromptEditor"
+                Placeholder="Ask a time-zone question..."
+                AutoSize="TextChanges"
+                MaxLength="1000"
+                MinimumHeightRequest="70" />
+            <HorizontalStackLayout Spacing="12" VerticalOptions="Center">
+                <Button
+                    x:Name="AskButton"
+                    Text="Ask"
+                    Clicked="OnAskClicked"
+                    WidthRequest="120" />
+                <ActivityIndicator
+                    x:Name="LoadingIndicator"
+                    IsVisible="False"
+                    IsRunning="False" />
+                <Label
+                    x:Name="StatusLabel"
+                    VerticalOptions="Center"
+                    TextColor="DarkRed" />
+            </HorizontalStackLayout>
+        </VerticalStackLayout>
+    </Grid>
+</ContentPage>

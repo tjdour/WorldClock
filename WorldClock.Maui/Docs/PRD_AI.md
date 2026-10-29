@@ -19,8 +19,8 @@ Add a **text-based AI time-zone assistant** to the existing MAUI app. The LLM in
 - **Model:** Microsoft Foundry `gpt-5-mini` (pending deployment access); selected for tool-calling support and modest expected cost.
 - **SDK:** `Microsoft.Extensions.AI` and `IChatClient`.
 - **Architecture:** `AssistantPage` (XAML/code-behind) → `AiAssistantService` (single bounded tool-calling orchestrator) ↔ LLM → `TimeZoneTools` → existing `WorldClockService`, `LocationManager`, and city catalog.
-- **Proposed tools:** `GetCurrentTime(city)`, `ConvertTime(source, destination, dateTime)`, `GetTimeDifference(cityA, cityB, dateTime)`—adapters around existing logic, not new time-calculation engines.
-- **Prompting/guardrails:** Use tool results for factual times/offsets; do not guess. Validate city names against the catalog, clarify ambiguous inputs, handle unsupported cities/provider errors, and keep credentials out of GitHub.
+- **Tools:** `GetCurrentTime(city)`, `ConvertTime(source, destination, dateTime)`, and `GetTimeDifference(cityA, cityB)` for current UTC offsets. The difference tool matches the current `WorldClockService` API; all calculations remain in C#.
+- **Prompting/guardrails:** Use tool results for factual times/offsets; do not guess. Validate city names against the catalog, clarify ambiguous city names and daylight-saving times, handle unsupported cities/provider errors, and bound tool calls. Use .NET User Secrets for local demonstration credentials; do not distribute a client build containing an API key. A shared/production app requires a secured backend.
 
 ## Acceptance Criteria and Scope
 The three example requests return tool-grounded results matching existing app calculations; a DST-boundary test passes; ambiguous or invalid requests and model failures are handled clearly; existing clock display, comparison, and SQLite persistence continue working.
